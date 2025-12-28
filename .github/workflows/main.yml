@@ -1,0 +1,37 @@
+name: Build Python EXE
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    # 윈도우 실행 환경을 사용하여 EXE 빌드 가능하게 함
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pycryptodome pywin32 pyinstaller
+
+    - name: Build EXE with PyInstaller
+      run: |
+        # --noconsole: 실행 시 터미널 창 숨김
+        # --onefile: 모든 라이브러리를 하나의 exe로 통합
+        # --name: 결과 파일 이름 지정
+        pyinstaller --noconsole --onefile --name "sys_update" hi.py
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Windows-Executable
+        path: dist/sys_update.exe
